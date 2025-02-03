@@ -1,50 +1,56 @@
-﻿namespace CalculatorApp;
+﻿
+using Microsoft.Extensions.Logging;
 
-class Program
+namespace CalculatorApp
 {
-    static void Main(string[] args)
+    class Program
     {
-
-        try
+        static void Main(string[] args)
         {
+            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
-            double num1;
-            double num2;
+            ILogger logger = loggerFactory.CreateLogger<Program>();
 
-            var calculator = new Calculator();
+            try
+            {
+                double num1;
+                double num2;
 
-            Console.WriteLine("Enter the first number:");
-            num1 = calculator.ConvertToDouble(Console.ReadLine());
+                var calculator = new Calculator();
 
-            Console.WriteLine("Enter the second number:");
-            num2 = calculator.ConvertToDouble(Console.ReadLine());
+                Console.WriteLine("Enter the first number:");
+                num1 = calculator.ConvertToDouble(Console.ReadLine());
 
-            Console.WriteLine("Enter the operation (add, subtract, multiply, divide):");
+                Console.WriteLine("Enter the second number:");
+                num2 = calculator.ConvertToDouble(Console.ReadLine());
 
-            string operation = Console.ReadLine()?.ToLower() ?? string.Empty;
+                Console.WriteLine("Enter the operation (add, subtract, multiply, divide):");
 
-            double result = calculator.PerformOperation(num1, num2, operation);
+                string operation = Console.ReadLine()?.ToLower() ?? string.Empty;
 
-            Console.WriteLine($"The result is: {result}");
-            Console.WriteLine("Calculation attempt finished.");
-        }
-        catch (FormatException ex)
-        {
-            Console.WriteLine("Invalid input. Please enter numeric values.");
-            Console.WriteLine("Calculation attempt finished.");
-            throw new FormatException(ex.Message);
-        }
-        catch (DivideByZeroException ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine("Calculation attempt finished.");
-            throw ex;
-        }
-        catch (InvalidOperationException ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine("Calculation attempt finished.");
-            throw ex;
+                double result = calculator.PerformOperation(num1, num2, operation);
+
+                Console.WriteLine($"The result is: {result}");
+                logger.LogInformation("Calculation attempt finished.");
+            }
+            catch (FormatException ex)
+            {
+                logger.LogError("Invalid input. Please enter numeric values.");
+                logger.LogInformation("Calculation attempt finished.");
+                throw new FormatException(ex.Message);
+            }
+            catch (DivideByZeroException ex)
+            {
+                logger.LogError(ex.Message);
+                logger.LogInformation("Calculation attempt finished.");
+                throw ex;
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogError(ex.Message);
+                logger.LogInformation("Calculation attempt finished.");
+                throw ex;
+            }
         }
     }
 }
